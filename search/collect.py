@@ -8,8 +8,9 @@
 
 Reads WORK/models.txt and the directories WORK/search/NAME written by search/search_model.sh.  With -compare DATA the two
 tables are compared with DATA/search_models.txt and DATA/search_curves.txt (times and the two Magma columns excepted),
-and the files models.txt, minimisation.txt, elkies163_lines.txt and elkies163_conics.txt of WORK with those of DATA; the
-exit status is 1 if anything differs."""
+and the files models.txt, minimisation.txt, elkies163_lines.txt and elkies163_conics.txt of WORK with those of DATA.  When
+the run searched a given list of models (it has not built them: WORK has no minimisation.txt), the models must be rows of
+DATA/models.txt and the comparison is with the stored rows of these models.  The exit status is 1 if anything differs."""
 import sys, os, re
 
 MODELS_HEAD = """# The search of all lines of height <= {L} on the models of models.txt, one row per model:
@@ -85,15 +86,25 @@ def main():
     need = ['models.txt', 'minimisation.txt', 'elkies163_lines.txt', 'elkies163_conics.txt', 'search_models.txt', 'search_curves.txt']
     missing = [f for f in need if not os.path.exists(data + '/' + f)]
     if missing: print('no stored results to compare with: ' + ', '.join(data + '/' + f for f in missing)); return 1
-    for f in need[:4]:
-        if open(work + '/' + f).read() != open(data + '/' + f).read(): print(f + ' differs from ' + data + '/' + f); bad = 1
+    built = os.path.exists(work + '/minimisation.txt')       # a run on a given list of models has only models.txt
     ref = [l.split() for l in open(data + '/search_models.txt') if not l.startswith('#')]
-    if [r[:14] for r in ref] != [r[:14] for r in mrows]:
-        d = [r[0] for r, q in zip(ref, mrows) if r[:14] != q[:14]]; print('search_models.txt: %d rows here, %d stored; differing: %s' % (len(mrows), len(ref), ' '.join(d[:10]))); bad = 1
-    ref = [l.split()[:17] for l in open(data + '/search_curves.txt') if not l.startswith('#')]
-    if ref != crows:
-        s1 = set(map(tuple, ref)); s2 = set(map(tuple, crows)); print('search_curves.txt: %d curves here, %d stored; %d only here, %d only stored' % (len(crows), len(ref), len(s2 - s1), len(s1 - s2))); bad = 1
-    print('the models, the numbers of the search and the curves closed are those of %s' % data if not bad else 'THE RUN DIFFERS FROM THE STORED RESULTS')
+    refc = [l.split()[:17] for l in open(data + '/search_curves.txt') if not l.startswith('#')]
+    if built:
+        for f in need[:4]:
+            if open(work + '/' + f).read() != open(data + '/' + f).read(): print(f + ' differs from ' + data + '/' + f); bad = 1
+    else:                                                    # the given models must be models of the stored list
+        stored = set(l for l in open(data + '/models.txt') if not l.startswith('#'))
+        new = [l.split()[0] for l in open(work + '/models.txt') if not l.startswith('#') and l not in stored]
+        if new: print('models.txt: %d models are not rows of %s/models.txt: %s' % (len(new), data, ' '.join(new[:10]))); bad = 1
+        here = set(r[0] for r in mrows); ref = [r for r in ref if r[0] in here]; refc = [r for r in refc if r[2] in here]
+    if sorted(r[:14] for r in ref) != sorted(r[:14] for r in mrows):
+        rd = dict((r[0], r[:14]) for r in ref); d = [q[0] for q in mrows if rd.get(q[0]) != q[:14]]
+        print('search_models.txt: %d rows here, %d stored; differing: %s' % (len(mrows), len(ref), ' '.join(d[:10]))); bad = 1
+    if refc != crows:
+        s1 = set(map(tuple, refc)); s2 = set(map(tuple, crows)); print('search_curves.txt: %d curves here, %d stored; %d only here, %d only stored' % (len(crows), len(refc), len(s2 - s1), len(s1 - s2))); bad = 1
+    if bad: print('THE RUN DIFFERS FROM THE STORED RESULTS')
+    elif built: print('the models, the numbers of the search and the curves closed are those of %s' % data)
+    else: print('the numbers of the search and the curves closed on the %d models searched are those of %s (the models were given, not built)' % (len(mrows), data))
     return bad
 
 if __name__ == '__main__': sys.exit(main())

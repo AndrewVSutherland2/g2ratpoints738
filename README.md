@@ -20,23 +20,58 @@ closure: C_738, a second new curve with 654 points, and the curve with 642 point
 
 ## Running it
 
-    make                 # the C programs (gcc with OpenMP, GMP; a processor with AVX-512)
-    ./run_all.sh WORK    # models, search, tables; compares the result with data/
+    make                                 # the C programs
+    search/search_model.sh t0453         # a first check: the search on the model of C_738 (output in out_t0453/)
+    ./run_all.sh WORK                    # everything: the models, the search, the tables; compares the result with data/
+    ./run_all.sh WORK data/models.txt    # the search only, on the stored models (no Magma needed)
 
-`run_all.sh` writes only into the directory `WORK` (about 1 GB).  On a machine with a 16-core AMD Ryzen AI Max+ 395
-processor (32 threads) the whole run takes 62 minutes, 7 of them for the models; `data/search_summary.txt`
-has the times of the run stored here, part by part.  Nothing in the computation is random: the output is determined by the input and the settings, and the last
-line of `run_all.sh` says whether the models, the numbers of the search and the curves are those of `data/`.
+`search/search_model.sh t0453` takes about 15 seconds; `out_t0453/summary.txt` should say
+`curves closed: 1; best 738 points (662 of height <= 10^5) on the line (66, 31, -52)`.  `make check` is a longer test
+(a few minutes): it searches three models, one of each kind, and compares the numbers and the curves with the stored ones.
 
-It needs, besides gcc and GMP: PARI/GP (2.18.1 was used), Magma (V2.29-10 was used; its `MinRedTernaryForm` computes the
-minimal coordinates, and it finds the singular points of each sextic), Python 3 with numpy, and the usual shell tools
-(bash, awk, xargs, bc).  The sextic of a model depends on the coordinates that `MinRedTernaryForm` returns, so another
-version of Magma could give other coordinates for some models, and then other lines of height at most 400.
+`run_all.sh` writes only into the directory `WORK` (about 1 GB).  Nothing in the computation is random: the output is
+determined by the input, the settings and the versions of the programs named below, and the last line that `run_all.sh`
+prints says whether the models, the numbers of the search and the curves are those of `data/`:
 
-Parts of the run by themselves:
+    the models, the numbers of the search and the curves closed are those of .../data
+
+On a machine with a 16-core AMD Ryzen AI Max+ 395 processor (32 threads) the whole run takes 62 minutes, 7 of them for
+the models; `data/search_summary.txt` has the times of the run stored here, part by part.  The search runs
+`nproc`/2 models at a time with 2 threads each (`JOBS` and `P` in the environment change that), so the time is roughly
+inversely proportional to the number of cores.  The search of one model needs about 0.6 GB of memory.
+
+### What it needs
+
+- A 64-bit Linux system with bash, GNU make, awk, xargs, bc, flock and the GNU core utilities.
+- gcc with OpenMP (13.3 was used) and the GMP library with its header (`libgmp-dev`).
+- PARI/GP 2.17 or later (2.18.1 was used; 2.17.2 gives the same results, 2.15 does not: see below).
+- Python 3; numpy for the construction of the models.
+- Magma for the construction of the models (V2.29-10 was used): its `MinRedTernaryForm` computes the minimal
+  coordinates, and it finds the singular points of each sextic.  The search does not use Magma.  The certificates
+  (below) are Magma scripts, apart from those for the 738 points.
+
+### What the result depends on
+
+- **The processor.**  Four of the five programs of the search work on 512-bit words.  They use the AVX-512 instructions
+  of the processor when it has them (the subsets F, BW, VL, VBMI2 and IFMA: AMD Zen 4 and later, Intel Ice Lake and
+  later server and some client processors), and plain C otherwise (`src/simd.h`).  The output is the same.
+  On the machine above the plain C programs take about twice as long (26 seconds instead of 12.5 on the model of C_738).
+- **PARI/GP.**  The search counts the points of bounded height on a reduced equation of each curve, computed by
+  `hyperellred`.  Since PARI 2.17 that function reduces a binary quadratic form exactly; before, it used a
+  floating-point LLL, which returns another equation for about 0.6% of the curves, and then some of the counts differ.
+  The construction of the models depends on the version of PARI/GP as well.  With 2.17.2 it gives the same 2381 sextics
+  as with 2.18.1.  With 2.15.4 (the version packaged in Ubuntu 24.04) everything runs, but 78 of the 2381 models
+  come out in other coordinates, so the results cannot be compared with `data/` row by row; `run_all.sh` prints a
+  warning.
+- **Magma.**  The sextic of a model depends on the coordinates that `MinRedTernaryForm` returns, so another version of
+  Magma could give other coordinates for some models, and then other lines of height at most 400.  This has not been
+  tried: only V2.29-10 was available.  `run_all.sh WORK data/models.txt` searches the stored models and does not depend
+  on it.
+
+### Parts of the run by themselves
 
     models/build_models.sh WORK          # the models only: WORK/models.txt (7 minutes)
-    search/search_model.sh t0453         # the search on one model of data/models.txt: the model of C_738 (20 seconds)
+    search/search_model.sh NAME          # the search on one model of data/models.txt
     search/line.sh t0453 66 31 -52       # one line of one model: its curve, the points of height <= 10^5, the closure
     search/sample.sh WORK2               # 87 models again with lower cuts: what the selection loses (5 processor hours)
 

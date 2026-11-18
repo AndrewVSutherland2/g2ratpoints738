@@ -19,8 +19,9 @@
 # counts_first.txt, counts_1e4.txt, counts_1e5.txt ("points a b c" for the curves counted to H1, 10^4, 10^5);
 # candidates.txt ("points of height <= 10^5, line, reduced sextic g0..g6" for the curves with at least T3 points);
 # closed.txt ("points after closure, points of height <= 10^5, line, sextic").
-# Needs the programs k3pts, k3inc, linesearch, g2rp and cubic (make, in the top directory; a processor with AVX-512),
-# gp (PARI/GP) and the usual shell tools.  A run that fails writes no summary.txt and has exit status 1.
+# Needs the programs k3pts, k3inc, linesearch, g2rp and cubic (make, in the top directory), gp (PARI/GP 2.17 or later
+# for the reduced equations of the stored run: see README.md) and the usual shell tools of a Linux system.  A run that
+# fails writes no summary.txt and has exit status 1.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(dirname "$HERE")
 MODELS=${MODELS:-$ROOT/data/models.txt}
