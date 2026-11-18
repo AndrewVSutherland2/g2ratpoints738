@@ -4,7 +4,7 @@
    All scripts are run from this directory (REPO = "..": the directory above holds data/ and src/). */
 \\ (parisizemax is set by run.sh: a default(parisizemax) inside a file loaded with \r aborts the rest of that file)
 REPO =if(type(REPO) == "t_STR", REPO, "..");            \\ path of the repository root (override with REPO = "..." before \r)
-BASE =if(type(BASE) == "t_STR", BASE, "");                 \\ "" = Elkies' model as the base surface; "<M>" = data/x163_<M>.txt with its _conics/_lines tables (frontier B)
+BASE =if(type(BASE) == "t_STR", BASE, "");                 \\ "" = Elkies' model as the base surface; "<M>" = data/x163_<M>.txt with its _conics/_lines tables
 basefile(suf) = if(BASE == "", concat(REPO, concat("/data/elkies163", suf)), concat([REPO, "/data/x163_", BASE, suf]));
 liftsfile() = if(BASE == "", "out/lifts.gp", concat(["out/lifts_", BASE, ".gp"]));
 MON6 = []; for(i=0,6, my(ii=6-i); for(jj=0,6-ii, my(j=6-ii-jj, k=6-ii-j); MON6 = concat(MON6, [[ii,j,k]])));

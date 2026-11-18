@@ -44,7 +44,7 @@ print("S_new fitted: max |coeff| has ", #Str(vecmax(abs(c))), " digits, ", 28 - 
 g = vector(3, m, aff(f[m]));
 pts2 = evalpts(KS[21..40], [5, -5, 1/3, -1/3, 7]);
 \\ w' vanishes at the points of the contracted curves (the map is constant there) and on the new ramification curve; at such
-\\ a fresh point S_new(N) must vanish too (Codex round 1 of PR #3: the old check divided by w'^2 there, and gp went on after
+\\ a fresh point S_new(N) must vanish too (the old check divided by w'^2 there, and gp went on after
 \\ the error in 45 of the 99 runs, so that the consistency check had silently not been evaluated for them)
 rat = List(); nz = 0;
 {
@@ -112,7 +112,7 @@ if(degr == 0, my(thru_r = select(nl -> (nl[1][1] == "L" && LIN[nl[1][2]][1][3] =
 \\ checks: S_new is a square on every new line, singular at every new point
 nsq = sum(n=1,#newlines, issqline(S, newlines[n][2]));
 print("S_new is a square on ", nsq, " of the ", #newlines, " lines", if(nsq == #newlines, "  OK", "  FAILURE"));
-if(nsq != #newlines, error("S_new is not a square on ", #newlines - nsq, " of the images of the known curves of degree 1: the model is wrong (Codex round 1 of PR #3: a failed witness check aborts, nothing is written)"));
+if(nsq != #newlines, error("S_new is not a square on ", #newlines - nsq, " of the images of the known curves of degree 1: the model is wrong (a failed witness check aborts, nothing is written)"));
 {
 my(ok = 1); for(n=1,#newpoints, if(gradat(S, newpoints[n][2]) != [0,0,0], ok = 0; print("NOT singular at ", newpoints[n])));
 print("S_new singular at the images of the contracted curves: ", if(ok, "OK", "FAILURE"));

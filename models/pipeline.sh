@@ -9,11 +9,15 @@
 # check (error() in model.gp / finalize.gp) or Magma failure aborts the pipeline with status 1 and no summary line.
 set -uo pipefail
 cd "$(dirname "$0")" || exit 1
-NAME=$1; I=$2; J=$3; SG=$4; H=${5:-150}; WRITE=${6:-1}; BASE=${BASE:-}   # BASE="<M>": build on the x163_<M> base surface (frontier B)
+NAME=$1; I=$2; J=$3; SG=$4; H=${5:-150}; WRITE=${6:-1}; BASE=${BASE:-}   # BASE="<M>": build on the x163_<M> base surface
 export TMPDIR=${TMPDIR:-/tmp}
 T0=$(date +%s)
-LIFTS="out/lifts.gp"; [ -n "$BASE" ] && LIFTS="out/lifts_$BASE.gp"   # Codex round 1 of PR #6: the base's lifts are a
-[ -f "$LIFTS" ] || ./run.sh lifts.gp "logs/lifts${BASE:+_$BASE}.log" "BASE=\"$BASE\"" > /dev/null || { echo "$NAME: lifts.gp FAILED (missing $LIFTS)"; exit 1; }   # prerequisite; generate them on a fresh checkout
+# The lifts of the conics and lines of the base are a prerequisite, made once for each base.  Many pipelines of the same
+# base run at the same time, so the test and the computation are done under a lock: without it a pipeline could read the
+# file while another was writing it.
+mkdir -p out logs
+LIFTS="out/lifts.gp"; [ -n "$BASE" ] && LIFTS="out/lifts_$BASE.gp"
+( flock 9; [ -f "$LIFTS" ] || ./run.sh lifts.gp "logs/lifts${BASE:+_$BASE}.log" "BASE=\"$BASE\"" > /dev/null ) 9> "$LIFTS.lock" || { echo "$NAME: lifts.gp FAILED (missing $LIFTS)"; exit 1; }
 [ -f "$LIFTS" ] || { echo "$NAME: $LIFTS still missing after lifts.gp"; exit 1; }
 ./run.sh model.gp "logs/model_$NAME.log" "PAIR=[$I,$J,$SG]" "NAME=\"$NAME\"" "BASE=\"$BASE\"" > /dev/null || { echo "$NAME ($I,$J,$SG): model.gp FAILED"; grep '^  \*\*\*' "logs/model_$NAME.log" | grep -v Warning | head -3; exit 1; }
 grep -q "^written out/model_${NAME}_raw.gp" "logs/model_$NAME.log" || { echo "$NAME ($I,$J,$SG): model.gp FAILED"; grep -v Warning "logs/model_$NAME.log" | tail -3; exit 1; }
@@ -26,7 +30,7 @@ if [ "${MINRED:-1}" = 1 ]; then   # minimisation and reduction by Magma's MinRed
   ./run.sh minred.gp "logs/minred_$NAME.log" "NAME=\"$NAME\"" > /dev/null || { echo "$NAME: minred.gp FAILED"; grep '^  \*\*\*' "logs/minred_$NAME.log" | grep -v Warning | head -3; exit 1; }
   grep -q "^written out/model_${NAME}_red.gp (minimised)" "logs/minred_$NAME.log" || { echo "$NAME: minred.gp FAILED"; grep -v Warning "logs/minred_$NAME.log" | tail -3; exit 1; }
 fi
-rm -f "out/model_${NAME}_sing.gp"   # Codex round 7 of PR #3: a stale singular-locus file must not satisfy a rerun
+rm -f "out/model_${NAME}_sing.gp"   # a stale singular-locus file must not satisfy a rerun
 timeout 3600 magma -b "file:=out/model_${NAME}_red_coeffs.txt" "out:=out/model_${NAME}_sing.gp" sing.m > "logs/sing_$NAME.log" 2>&1 || { echo "$NAME: sing.m FAILED (magma exit $?)"; tail -3 "logs/sing_$NAME.log"; exit 1; }
 grep -q "^written" "logs/sing_$NAME.log" || { echo "$NAME: sing.m FAILED"; tail -3 "logs/sing_$NAME.log"; exit 1; }
 [ -s "out/model_${NAME}_sing.gp" ] || { echo "$NAME: sing.m wrote no output"; exit 1; }

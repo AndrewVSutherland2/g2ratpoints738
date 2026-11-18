@@ -21,7 +21,7 @@ if(type(fileopen(singfile, "r")) != "t_INT", error("run  magma -b file:=out/mode
 read(singfile);
 singtypes = vector(#singpts, n, if(singmult[n] == 2, concat("A", Str(singtau[n])), concat(["mult", Str(singmult[n]), "tau", Str(singtau[n])])));
 print("Magma: singular subscheme of degree ", singdeg, ", rational singular points ", singpts, " of types ", singtypes, if(#singnonrat > 0, concat(", NON-RATIONAL singular components [degree, length] ", Str(singnonrat)), ""));
-for(n=1,#sing, if(!vecsearch(vecsort(singpts), sing[n]), error("the image ", sing[n], " of a contracted known curve is not among Magma's singular points: the witnesses and the model disagree (Codex round 1 of PR #3: fatal, no data files are written)")));
+for(n=1,#sing, if(!vecsearch(vecsort(singpts), sing[n]), error("the image ", sing[n], " of a contracted known curve is not among Magma's singular points: the witnesses and the model disagree (fatal, no data files are written)")));
 for(n=1,#singpts, if(gradat(S, singpts[n]) != [0,0,0], error("Magma's singular point ", singpts[n], " is not singular?")));
 if(#singpts == 0, error("no rational singular point"));
 ALLSING = singpts;
@@ -73,7 +73,7 @@ nsingmodp(Sp, p) = { my(cnt = 0, Spp = Sp*Mod(1,p), g = vector(3, m, deriv(Spp, 
 my(bad = 0, badp = List()); forprime(p = 47, PMAX, my(n = npts(S, p) + nexc*p, ap = n - 1 - p^2 - 20*p, cm = cmap(p)); if(ap != cm,
   my(ns = nsingmodp(S, p)); if((ap - cm) % p == 0 && ns > #ALLSING, listput(badp, [p, (ap - cm)/p, ns]), bad++; print("p = ", p, ": a_p = ", ap, " but the CM form gives ", cm, " (", ns, " singular points mod p)"))));
 print("a_p check against the CM form for 47 <= p <= ", PMAX, " (", nexc, " exceptional curves): ", if(bad == 0, "OK", concat(Str(bad), " mismatches")), if(#badp > 0, concat(["; primes of bad reduction (count off by k p, extra singular points mod p) [p, k, #sing mod p]: ", Str(Vec(badp))]), ""));
-if(bad > 0, error("a_p verification failed at ", bad, " good prime(s): the model contradicts the CM form (Codex round 8 of PR #3: fatal, nothing is written)"));
+if(bad > 0, error("a_p verification failed at ", bad, " good prime(s): the model contradicts the CM form (fatal, nothing is written)"));
 }
 {
 if(WRITE,
