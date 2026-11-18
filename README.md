@@ -54,15 +54,18 @@ inversely proportional to the number of cores.  The search of one model needs ab
 
 - **The processor.**  Four of the five programs of the search work on 512-bit words.  They use the AVX-512 instructions
   of the processor when it has them (the subsets F, BW, VL, VBMI2 and IFMA: AMD Zen 4 and later, Intel Ice Lake and
-  later server and some client processors), and plain C otherwise (`src/simd.h`).  The output is the same.
-  On the machine above the plain C programs take about twice as long (26 seconds instead of 12.5 on the model of C_738).
+  later server and some client processors), and plain C otherwise (`src/simd.h`).  The output is the same: the whole
+  search was repeated with the plain C programs (`make MARCH=x86-64-v3`), and the output files of each of the 2381
+  models are those of the stored run, apart from the running times that they record.  On the machine above the plain C
+  programs take about twice as long (26 seconds instead of 12.5 on the model of C_738).
 - **PARI/GP.**  The search counts the points of bounded height on a reduced equation of each curve, computed by
   `hyperellred`.  Since PARI 2.17 that function reduces a binary quadratic form exactly; before, it used a
-  floating-point LLL, which returns another equation for about 0.6% of the curves, and then some of the counts differ.
-  The construction of the models depends on the version of PARI/GP as well.  With 2.17.2 it gives the same 2381 sextics
-  as with 2.18.1.  With 2.15.4 (the version packaged in Ubuntu 24.04) everything runs, but 78 of the 2381 models
-  come out in other coordinates, so the results cannot be compared with `data/` row by row; `run_all.sh` prints a
-  warning.
+  floating-point LLL.  On the 6,605,562 curves of the stored run, 2.17.2 returns the same equation as 2.18.1 for every
+  curve.  2.15.4 (the version packaged in Ubuntu 24.04) returns another equation for 2,288,212 of them; for all but
+  39,671 (0.6%) the two equations differ by x -> -x or x -> 1/x, which does not change the counts, and for those 39,671
+  some of the counts differ.  The construction of the models depends on the version of PARI/GP as well.  With 2.17.2 it
+  gives the same 2381 sextics as with 2.18.1.  With 2.15.4 everything runs, but 78 of the 2381 models come out in other
+  coordinates, so the results cannot be compared with `data/` row by row; `run_all.sh` prints a warning.
 - **Magma.**  The sextic of a model depends on the coordinates that `MinRedTernaryForm` returns, so another version of
   Magma could give other coordinates for some models, and then other lines of height at most 400.  This has not been
   tried: only V2.29-10 was available.  `run_all.sh WORK data/models.txt` searches the stored models and does not depend
