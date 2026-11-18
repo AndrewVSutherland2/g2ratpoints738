@@ -24,7 +24,7 @@ closure: C_738, a second new curve with 654 points, and the curve with 642 point
     ./run_all.sh WORK    # models, search, tables; compares the result with data/
 
 `run_all.sh` writes only into the directory `WORK` (about 1 GB).  On a machine with a 16-core AMD Ryzen AI Max+ 395
-processor (32 threads) the whole run takes 62 minutes, 7 for the models and 55 for the search; `data/search_summary.txt`
+processor (32 threads) the whole run takes 62 minutes, 7 of them for the models; `data/search_summary.txt`
 has the times of the run stored here, part by part.  Nothing in the computation is random: the output is determined by the input and the settings, and the last
 line of `run_all.sh` says whether the models, the numbers of the search and the curves are those of `data/`.
 

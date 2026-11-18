@@ -1,6 +1,6 @@
 # The run of run_all.sh that produced the tables of this directory: machine, programs, settings and times.
-# The computation was repeated from this repository on 18 November 2026, on the same machine while it was busy with other work:
-# 108.5 minutes, 28.7 processor hours, and the same models, numbers and curves.
+# The computation was repeated from a clean clone of this repository on 18 November 2026, on the same machine while it was
+# busy with other work: 80 minutes, 28.7 processor hours, and the same models, numbers and curves.
 date: 2026-11-17 06:45
 machine: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S, 32 threads; Linux 7.0.11-76070011-generic
 programs: gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0; GP/PARI CALCULATOR Version 2.18.1 (development 31002-39aac3b811); Magma V2.29-10

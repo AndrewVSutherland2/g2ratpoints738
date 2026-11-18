@@ -352,7 +352,7 @@ static void y_derivs_mod2(uint64_t p, const uint64_t *fm, uint64_t x, uint64_t y
     d[2] = mulmod((f2 + p - mulmod(2, mulmod(d[1], d[1], p), p)) % p, inv2yv, p);
     d[3] = mulmod((f3 + p - mulmod(6, mulmod(d[1], d[2], p), p)) % p, inv2yv, p);
 }
-static void y_derivs_mod(uint64_t p, const uint64_t *fm, uint64_t x, uint64_t y, uint64_t *d) {
+static __attribute__((unused)) void y_derivs_mod(uint64_t p, const uint64_t *fm, uint64_t x, uint64_t y, uint64_t *d) {
     uint64_t pw[7]; pw[0] = 1; for (int i = 1; i < 7; i++) pw[i] = mulmod(pw[i-1], x, p);
     uint64_t f1 = 0, f2 = 0, f3 = 0;
     for (int i = 1; i <= 6; i++) f1 = (f1 + mulmod(mulmod(i, fm[i], p), pw[i-1], p)) % p;
