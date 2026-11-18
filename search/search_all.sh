@@ -3,6 +3,7 @@
 # at a time with P threads each.  The settings are taken from the environment (see search_model.sh).  The output of a model
 # is in OUTDIR/NAME; OUTDIR.log holds the times.  Exit status 1 if a model failed.
 set -euo pipefail
+[ $# -ge 2 ] || { echo "usage: search_all.sh MODELS OUTDIR [JOBS=16] [P=2]" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd); export HERE MODELS=$(readlink -f "$1"); mkdir -p "$2"; export O=$(cd "$2" && pwd) P=${4:-2}; JOBS=${3:-16}
 export SRC=${SRC:-$(dirname "$HERE")/src}
 N=$(grep -vc '^#' "$MODELS"); rm -f "$O/failed.txt"

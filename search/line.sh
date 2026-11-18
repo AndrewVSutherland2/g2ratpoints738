@@ -8,12 +8,13 @@ HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(dirname "$HERE"); MODELS=${MODELS:-$
 ROW=$(awk -F' [|] ' -v m="$1" '$1 == m' "$MODELS"); [ -n "$ROW" ] || { echo "line.sh: no model $1 in $MODELS" >&2; exit 2; }
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 echo "$ROW" | awk -F' [|] ' '{print $3}' > "$W/sextic.txt"
-echo "$2 $3 $4" | "$SRC/linesearch" "$W/sextic.txt" 1 -exactbatch > "$W/raw"
+for b in linesearch g2rp cubic; do [ -x "$SRC/$b" ] || { echo "line.sh: program $b not found in $SRC; run make in $ROOT" >&2; exit 2; }; done
+echo "$2 $3 $4" | "$SRC/linesearch" "$W/sextic.txt" 1 -exactbatch > "$W/raw" || { echo "line.sh: linesearch failed" >&2; exit 1; }
 RED_IN="$W/raw" RED_OUT="$W/red" gp -q "$HERE/reduce.gp" < /dev/null > "$W/log" 2>&1
 [ "$(tail -1 "$W/red")" = "DONE 1" ] || { echo "line.sh: the line does not cut out a curve of genus 2" >&2; exit 1; }
 F=$(head -1 "$W/red" | cut -d' ' -f4-)
-"$SRC/g2rp" "$F" 100000 -t "${P:-2}" > "$W/p" 2> /dev/null
-"$SRC/cubic" "$F" "$W/p" -t "${P:-2}" > "$W/x" 2> /dev/null
+"$SRC/g2rp" "$F" 100000 -t "${P:-2}" > "$W/p" 2> /dev/null || { echo "line.sh: g2rp failed" >&2; exit 1; }
+"$SRC/cubic" "$F" "$W/p" -t "${P:-2}" > "$W/x" 2> /dev/null || { echo "line.sh: cubic failed" >&2; exit 1; }
 NS=$(grep -c . "$W/p" || true); NX=$(grep -c . "$W/x" || true)
 echo "model $1, line ($2, $3, $4): y^2 = g0 + g1 x + .. + g6 x^6 with g = $F"
 echo "$NS points of height <= 10^5; $((NS + 2 * NX)) points after closure"

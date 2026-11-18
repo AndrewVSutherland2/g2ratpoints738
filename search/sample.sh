@@ -5,6 +5,7 @@
 # OUTDIR/search_sample.txt lists every curve closed, and says whether the search with the standard settings has it
 # (data/search_curves.txt) or which cut removed it.  About fifteen minutes on a 16-core machine.
 set -euo pipefail
+[ $# -ge 1 ] || { echo "usage: sample.sh OUTDIR [JOBS=16] [P=2]" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(dirname "$HERE"); export HERE MODELS=${MODELS:-$ROOT/data/models.txt}; mkdir -p "$1"; export O=$(cd "$1" && pwd) P=${3:-2}; JOBS=${2:-16}
 grep -v '^#' "$MODELS" | awk -F' [|] ' '{ n[$2]++; name[$2, n[$2]] = $1 } END { for (i = 1; i <= n[1]; i++) print name[1, i]; for (i = 0; i < 20; i++) print name[2, 1 + int(i * n[2] / 20)]; for (i = 0; i < 60; i++) print name[3, 1 + int(i * n[3] / 60)] }' > "$O/models.txt"
 rm -f "$O/failed.txt"

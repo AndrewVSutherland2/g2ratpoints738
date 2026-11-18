@@ -15,6 +15,7 @@
 #      WORK/elkies163_lines.txt and WORK/elkies163_conics.txt (the lines and conics of Elkies' sextic)
 # Times of the stages are appended to WORK/times.txt.
 set -euo pipefail
+[ $# -ge 1 ] || { echo "usage: build_models.sh WORK [threads]" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd); TOP=$(dirname "$HERE"); mkdir -p "$1"; W=$(cd "$1" && pwd); T=${2:-$(nproc)}
 for b in models/canon models/frames models/sqfilter models/conicmodp src/linesearch; do [ -x "$TOP/$b" ] || { echo "build_models.sh: program $b not built; run make in $TOP" >&2; exit 2; }; done
 R=$W/root; [ -e "$R" ] && { echo "build_models.sh: $R exists" >&2; exit 2; }

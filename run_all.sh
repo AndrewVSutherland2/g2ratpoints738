@@ -9,7 +9,9 @@
 # threads each (default: half the number of processors, and 2).  About an hour on a machine with 16 cores (32 threads);
 # WORK grows to about 1 GB.
 set -euo pipefail
+[ $# -eq 1 ] || { echo "usage: run_all.sh WORK   (a directory for the run; it must not hold an earlier run)" >&2; exit 2; }
 TOP=$(cd "$(dirname "$0")" && pwd); mkdir -p "$1"; W=$(cd "$1" && pwd)
+[ ! -e "$W/root" ] || { echo "run_all.sh: $W holds an earlier run" >&2; exit 2; }
 make -s -C "$TOP"
 echo "START $(date +%T) $(date +%s.%N)" > "$W/all.log"
 "$TOP/models/build_models.sh" "$W" "$(nproc)" >> "$W/all.log" 2>&1 || { echo "run_all.sh: the construction of the models failed; see $W/all.log" >&2; exit 1; }
