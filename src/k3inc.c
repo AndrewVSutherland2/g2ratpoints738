@@ -29,7 +29,7 @@
 #include <math.h>
 #include <omp.h>
 #include <sys/mman.h>
-#include <immintrin.h>
+#include "simd.h"
 
 /* zero-filled table on (transparent) huge pages when available: fewer TLB misses on the random accesses */
 static void *table_alloc(size_t bytes) {
@@ -88,7 +88,7 @@ static inline void decode(uint64_t ck, int64_t *A, int64_t *B, int64_t *C) {
     *A = (int64_t)(ck >> (2 * sbits)); *B = (int64_t)((ck >> sbits) & sm) - GL; *C = (int64_t)(ck & sm) - GL;
 }
 
-static uint64_t hprobe_limit = 0;   /* = number of slots; a probe sequence longer than this means the table is full (Codex round 32) */
+static uint64_t hprobe_limit = 0;   /* = number of slots; a probe sequence longer than this means the table is full */
 static void htable_full(void) { fprintf(stderr, "k3inc: hash table full (more distinct lines than slots) -- rerun with a larger -slots\n"); exit(2); }
 /* stage A: insert-or-increment at the probe start h */
 static inline void hinc(uint64_t key, uint64_t h) {
@@ -249,12 +249,12 @@ static void dpoint(int64_t p0, int64_t p1, int64_t p2, int64_t L) {
     }
 }
 
-/* Codex round 36: value-taking options must have an argument and numeric values must parse completely */
+/* value-taking options must have an argument and numeric values must parse completely */
 static char *arg_str(int argc, char **argv, int *i) { if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", argv[*i]); exit(1); } return argv[++*i]; }
 static __attribute__((unused)) long long arg_ll(int argc, char **argv, int *i) { const char *opt = argv[*i]; char *s = arg_str(argc, argv, i), *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno == ERANGE || end == s || *end != 0) { fprintf(stderr, "option %s: invalid integer '%s'\n", opt, s); exit(1); } return v; }
 static __attribute__((unused)) double arg_d(int argc, char **argv, int *i) { const char *opt = argv[*i]; char *s = arg_str(argc, argv, i), *end = NULL; errno = 0; double v = strtod(s, &end); if (errno == ERANGE || end == s || *end != 0) { fprintf(stderr, "option %s: invalid number '%s'\n", opt, s); exit(1); } return v; }
 
-/* Codex round 48: integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
+/* integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
 static long long chk_ll(const char *what, const char *s, long long lo, long long hi) { char *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno != 0 || end == s || *end != 0) { fprintf(stderr, "%s: invalid integer '%s'\n", what, s); exit(1); } if (v < lo || v > hi) { fprintf(stderr, "%s: %lld is outside [%lld, %lld]\n", what, v, lo, hi); exit(1); } return v; }
 static int arg_int(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return (int)chk_ll(opt, argv[++*i], lo, hi); }
 static __attribute__((unused)) long long arg_llr(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return chk_ll(opt, argv[++*i], lo, hi); }
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
     packed = 3 * sbits <= 45;                                  /* >= 19 count bits */
     if (packed) { kmask = ((uint64_t)1 << (3 * sbits)) - 1; CNT1 = (uint64_t)1 << (3 * sbits); cntmax = ((uint64_t)1 << (64 - 3 * sbits)) - 1; }
     /* read points */
-    /* Codex round 51: a point record is "x0 x1 x2" or "x0 x1 x2 W" (k3pts output), every coordinate a complete int64; comment
+    /* a point record is "x0 x1 x2" or "x0 x1 x2 W" (k3pts output), every coordinate a complete int64; comment
      * ('#') and blank lines are skipped; any other record aborts instead of being dropped from the incidence counts */
     size_t cap = 1 << 20, n = 0; int64_t (*P)[3] = malloc(cap * sizeof *P); char *buf = NULL; size_t bcap = 0; ssize_t blen; long recno = 0; FILE *f = fopen(argv[1], "r"); if (!f) { perror(argv[1]); return 1; }
     while ((blen = getline(&buf, &bcap, f)) > 0) { recno++; if (buf[0] == '#') continue; char *save = NULL, *tok = strtok_r(buf, " \t\r\n", &save); if (!tok) continue; int64_t v[3]; int nt = 0;

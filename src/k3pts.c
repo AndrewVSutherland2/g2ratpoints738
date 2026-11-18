@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include <immintrin.h>
+#include "simd.h"
 #include <gmp.h>
 #include <omp.h>
 
@@ -336,12 +336,12 @@ static inline void emit(thr_t *T, int64_t x0, int64_t x1, int64_t x2, int iszero
 }
 
 
-/* Codex round 36: value-taking options must have an argument and numeric values must parse completely */
+/* value-taking options must have an argument and numeric values must parse completely */
 static char *arg_str(int argc, char **argv, int *i) { if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", argv[*i]); exit(1); } return argv[++*i]; }
 static __attribute__((unused)) long long arg_ll(int argc, char **argv, int *i) { const char *opt = argv[*i]; char *s = arg_str(argc, argv, i), *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno == ERANGE || end == s || *end != 0) { fprintf(stderr, "option %s: invalid integer '%s'\n", opt, s); exit(1); } return v; }
 static __attribute__((unused)) double arg_d(int argc, char **argv, int *i) { const char *opt = argv[*i]; char *s = arg_str(argc, argv, i), *end = NULL; errno = 0; double v = strtod(s, &end); if (errno == ERANGE || end == s || *end != 0) { fprintf(stderr, "option %s: invalid number '%s'\n", opt, s); exit(1); } return v; }
 
-/* Codex round 48: integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
+/* integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
 static long long chk_ll(const char *what, const char *s, long long lo, long long hi) { char *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno != 0 || end == s || *end != 0) { fprintf(stderr, "%s: invalid integer '%s'\n", what, s); exit(1); } if (v < lo || v > hi) { fprintf(stderr, "%s: %lld is outside [%lld, %lld]\n", what, v, lo, hi); exit(1); } return v; }
 static int arg_int(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return (int)chk_ll(opt, argv[++*i], lo, hi); }
 static __attribute__((unused)) long long arg_llr(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return chk_ll(opt, argv[++*i], lo, hi); }
@@ -365,16 +365,16 @@ int main(int argc, char **argv) {
     if (nmodmax > MAXMOD) nmodmax = MAXMOD;
     if (x2lo < 0) x2lo = 0; if (x2hi > H) x2hi = H;
     omp_set_num_threads(nthreads);
-    { FILE *f = fopen(argv[1], "r"); if (!f) { perror(argv[1]); return 1; } char tok[128]; int n = 0;   /* Codex round 49: exactly 28 complete int64 coefficients, nothing else */
+    { FILE *f = fopen(argv[1], "r"); if (!f) { perror(argv[1]); return 1; } char tok[128]; int n = 0;   /* exactly 28 complete int64 coefficients, nothing else */
       while (fscanf(f, "%127s", tok) == 1) { if (n == 28) { fprintf(stderr, "%s: more than 28 coefficients\n", argv[1]); return 1; } char *end = NULL; errno = 0; long long v = strtoll(tok, &end, 10); if (errno != 0 || end == tok || *end != 0) { fprintf(stderr, "%s: coefficient %d is not an int64 integer: '%s'\n", argv[1], n + 1, tok); return 1; } S[n++] = v; }
       if (n != 28) { fprintf(stderr, "need 28 coefficients, got %d\n", n); return 1; } fclose(f); }
     { int n = 0; for (int i = 6; i >= 0; i--) for (int j = 6 - i; j >= 0; j--) { SI[n] = i; SJ[n] = j; SK[n] = 6 - i - j; n++; } }
-    if (skipfile) {   /* Codex round 51: a skip record is exactly three complete int64 integers (comment/blank lines skipped); anything else aborts */
+    if (skipfile) {   /* a skip record is exactly three complete int64 integers (comment/blank lines skipped); anything else aborts */
       FILE *f = fopen(skipfile, "r"); if (!f) { perror(skipfile); return 1; } char *buf = NULL; size_t bcap = 0; ssize_t blen; long rec = 0;
       while ((blen = getline(&buf, &bcap, f)) > 0) { rec++; if (buf[0] == '#') continue; char *save = NULL, *tok = strtok_r(buf, " \t\r\n", &save); if (!tok) continue; int64_t v[3]; int nt = 0;
         for (; tok; tok = strtok_r(NULL, " \t\r\n", &save)) { if (nt == 3) { fprintf(stderr, "skip file %s: record %ld has more than 3 fields\n", skipfile, rec); return 1; } char *e = NULL; errno = 0; long long x = strtoll(tok, &e, 10); if (errno != 0 || e == tok || *e != 0) { fprintf(stderr, "skip file %s: record %ld, field %d is not an int64 integer: '%s'\n", skipfile, rec, nt + 1, tok); return 1; } v[nt++] = x; }
         if (nt != 3) { fprintf(stderr, "skip file %s: record %ld has %d fields, need 3 (A B C)\n", skipfile, rec, nt); return 1; }
-        if (nskip == 256) { fprintf(stderr, "skip file %s has more than 256 lines (the skip table is fixed at 256; Codex round 41)\n", skipfile); return 1; }
+        if (nskip == 256) { fprintf(stderr, "skip file %s has more than 256 lines (the skip table is fixed at 256)\n", skipfile); return 1; }
         skipL[nskip][0] = v[0]; skipL[nskip][1] = v[1]; skipL[nskip][2] = v[2]; nskip++; }
       free(buf); fclose(f); }
     setup_lines(H);

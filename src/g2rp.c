@@ -19,8 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <immintrin.h>
-#include <x86intrin.h>
+#include "simd.h"
 #include <gmp.h>
 #include <omp.h>
 
@@ -551,7 +550,7 @@ static double knapsack_pick(const pptab_t *pp, const int *grp, int npp, const in
     return v;
 }
 
-/* Codex round 34: value-taking options must have an argument, integers must parse completely */
+/* value-taking options must have an argument, integers must parse completely */
 static int opt_int(int argc, char **argv, int *i, int64_t *out) {
     if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", argv[*i]); return 0; }
     char *end = NULL; errno = 0; int64_t v = strtoll(argv[*i + 1], &end, 10);
@@ -564,7 +563,7 @@ static int opt_double(int argc, char **argv, int *i, double *out) {
     if (errno == ERANGE || end == argv[*i + 1] || *end != 0) { fprintf(stderr, "option %s: invalid number '%s'\n", argv[*i], argv[*i + 1]); return 0; }
     (*i)++; *out = v; return 1;
 }
-/* returns 0 on success (point count in *npts_out), 1 on a usage/option error (Codex round 21: status separated from the count) */
+/* returns 0 on success (point count in *npts_out), 1 on a usage/option error (status separated from the count) */
 static int run_main(int argc, char **argv, mpz_t *fover, int64_t Nover, int quiet_override, uint64_t *npts_out) {
     if (argc < 3) {
         fprintf(stderr, "usage: %s 'f0 f1 ... f6' N [-t threads] [-v] [-K1 k] [-K2 k] [-nvec n] [-pw2 m] [-Mmax m] [-Pmax p] [-q]\n       %s -batch N [-batchpts] [options] < records   (records \"tag... f0 .. f6\": prints \"npts record\", or with -batchpts \"CURVE record\" + the points)\n", argv[0], argv[0]);
@@ -578,10 +577,10 @@ static int run_main(int argc, char **argv, mpz_t *fover, int64_t Nover, int quie
         char *tok = strtok(s, " ,");
         while (tok && i <= MAXDEG) { if (!parse_coeff(C.f[i++], tok)) { bad = tok; break; } tok = strtok(NULL, " ,"); }
         if (bad) { fprintf(stderr, "g2rp: invalid coefficient '%s'\n", bad); free(s); clear_coeffs(C.f); return 1; }
-        if (tok) { fprintf(stderr, "g2rp: more than %d coefficients given (extra token '%s')\n", MAXDEG + 1, tok); free(s); clear_coeffs(C.f); return 1; }   /* Codex round 35 */
+        if (tok) { fprintf(stderr, "g2rp: more than %d coefficients given (extra token '%s')\n", MAXDEG + 1, tok); free(s); clear_coeffs(C.f); return 1; }
         if (i == 0) { fprintf(stderr, "g2rp: no coefficients given\n"); free(s); clear_coeffs(C.f); return 1; }
         free(s);
-        { char *end = NULL; errno = 0; C.N = strtoll(argv[2], &end, 10); if (errno == ERANGE || end == argv[2] || *end != 0 || C.N <= 0) { fprintf(stderr, "N must be a positive integer, not '%s'\n", argv[2]); clear_coeffs(C.f); return 1; } }   /* Codex round 34 */
+        { char *end = NULL; errno = 0; C.N = strtoll(argv[2], &end, 10); if (errno == ERANGE || end == argv[2] || *end != 0 || C.N <= 0) { fprintf(stderr, "N must be a positive integer, not '%s'\n", argv[2]); clear_coeffs(C.f); return 1; } }
     }
     int nthreads = omp_get_max_threads();
     int K1 = -1, K2 = -1, nvec = 12; uint32_t pw2 = 0; uint32_t Mmax = 0, Pmax = 0; int quiet = 0; int maxfac = 4;
@@ -608,7 +607,7 @@ static int run_main(int argc, char **argv, mpz_t *fover, int64_t Nover, int quie
         #undef OPTI
         else { fprintf(stderr, "unknown option %s\n", argv[i]); clear_coeffs(C.f); return 1; }
     }
-    /* Codex round 35: option domains (-1 / 0 mean automatic where the defaults say so) */
+    /* option domains (-1 / 0 mean automatic where the defaults say so) */
     if (nthreads < 1 || nthreads > 4096) { fprintf(stderr, "-t must be in [1, 4096]\n"); clear_coeffs(C.f); return 1; }
     if (K1 < -1 || K2 < -1) { fprintf(stderr, "-K1/-K2 must be >= -1\n"); clear_coeffs(C.f); return 1; }
     if (nvec < 1 || nvec > MAXVEC - 1) { fprintf(stderr, "-nvec must be in [1, %d]\n", MAXVEC - 1); clear_coeffs(C.f); return 1; }
@@ -630,7 +629,7 @@ static int run_main(int argc, char **argv, mpz_t *fover, int64_t Nover, int quie
     /* real intervals where f >= 0 (from the scaled coefficients: exact to 64 bits whatever the coefficient sizes) */
     {
         long double cf[MAXDEG+1]; scaled_coeffs(C.f, cf);
-        /* Codex round 33: the scaled coefficients keep only the top 64 bits; with larger coefficients cancellation can be lost
+        /* the scaled coefficients keep only the top 64 bits; with larger coefficients cancellation can be lost
          * and the pruning would be unsound (points in a region where the truncated f is negative but f > 0), so prune only
          * when every coefficient is exactly representable; otherwise search the full range (sieve + exact test stay correct). */
         int exact_cf = 1; for (int i = 0; i <= MAXDEG; i++) if (mpz_sizeinbase(C.f[i], 2) > 63) exact_cf = 0;
@@ -874,7 +873,7 @@ static int run_main(int argc, char **argv, mpz_t *fover, int64_t Nover, int quie
 int main(int argc, char **argv) {
     int batch = 0, batchpts = 0; int64_t Nb = 0;
     for (int i = 1; i < argc; i++) if (!strcmp(argv[i], "-batchpts")) batchpts = 1;
-    for (int i = 1; i < argc; i++) if (!strcmp(argv[i], "-batch")) { if (i + 1 >= argc) { fprintf(stderr, "-batch needs a height bound N\n"); return 1; } batch = 1; char *end = NULL; errno = 0; Nb = strtoll(argv[i+1], &end, 10); if (errno == ERANGE || end == argv[i+1] || *end != 0 || Nb <= 0) { fprintf(stderr, "-batch: N must be a positive integer, not '%s'\n", argv[i+1]); return 1; } }   /* Codex rounds 22-23: full validation */
+    for (int i = 1; i < argc; i++) if (!strcmp(argv[i], "-batch")) { if (i + 1 >= argc) { fprintf(stderr, "-batch needs a height bound N\n"); return 1; } batch = 1; char *end = NULL; errno = 0; Nb = strtoll(argv[i+1], &end, 10); if (errno == ERANGE || end == argv[i+1] || *end != 0 || Nb <= 0) { fprintf(stderr, "-batch: N must be a positive integer, not '%s'\n", argv[i+1]); return 1; } }   /* full validation */
     if (!batch) { uint64_t np = 0; return run_main(argc, argv, NULL, 0, 0, &np); }
     /* batch: read "tag... f0 .. f6" lines: the LAST 7 fields are the coefficients; print "npts <line>" */
     char line[8192];
@@ -884,9 +883,9 @@ int main(int argc, char **argv) {
         size_t LL = strlen(line); if (LL > 0 && line[LL-1] != '\n' && !feof(stdin)) { fprintf(stderr, "g2rp: batch line too long (> %zu bytes)\n", sizeof line - 2); return 1; }
         char *toks[256]; int nt = 0; char *tok = strtok(tmp, " \t\n,");
         while (tok && nt < 256) { toks[nt++] = tok; tok = strtok(NULL, " \t\n,"); }
-        if (tok) { fprintf(stderr, "g2rp: batch record with more than 256 fields: %s", line); return 1; }   /* Codex round 25: never truncate a record */
+        if (tok) { fprintf(stderr, "g2rp: batch record with more than 256 fields: %s", line); return 1; }   /* never truncate a record */
         if (nt == 0) continue;                                                     /* blank line */
-        if (nt < 7) { fprintf(stderr, "g2rp: batch record with fewer than 7 coefficients: %s", line); return 1; }   /* Codex round 24 */
+        if (nt < 7) { fprintf(stderr, "g2rp: batch record with fewer than 7 coefficients: %s", line); return 1; }
         for (int i = 0; i < 7; i++)   /* whole token, any size (GMP) */
             if (!parse_coeff(f[i], toks[nt - 7 + i])) { fprintf(stderr, "g2rp: invalid coefficient '%s' in batch record: %s", toks[nt - 7 + i], line); return 1; }
         size_t L = strlen(line); if (L && line[L-1] == '\n') line[L-1] = 0;

@@ -85,7 +85,7 @@ static uint64_t inv_mod_p(uint64_t a, int ip) {
     return r;
 }
 /* degree of gcd(g, g') over F_p for g of degree <= 6 (coefficients g[0..6] of x^0..x^6, reduced mod p); -1 if g = 0 mod p.
- * Euclid on dense polynomials; the degree is all the bad-reduction test needs (Codex round 41: the earlier test only looked
+ * Euclid on dense polynomials; the degree is all the bad-reduction test needs (the earlier test only looked
  * for common roots in F_p and missed repeated irreducible factors of degree >= 2, e.g. (x^2+1)^2 (x^2+2) mod 3). */
 static int gcd_deg_mod_p(const uint64_t g[7], int ip) {
     uint64_t a[8], b[8]; int da = -1, db = -1;
@@ -189,7 +189,7 @@ static void print_exact(int64_t A, int64_t B, int64_t C) {
 typedef struct { double score, nagao; int64_t A, B, C; } res_t;
 static int cmp_res(const void *a, const void *b) { const res_t *x = a, *y = b; return (x->score < y->score) - (x->score > y->score); }
 
-/* Codex round 48: integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
+/* integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
 static long long chk_ll(const char *what, const char *s, long long lo, long long hi) { char *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno != 0 || end == s || *end != 0) { fprintf(stderr, "%s: invalid integer '%s'\n", what, s); exit(1); } if (v < lo || v > hi) { fprintf(stderr, "%s: %lld is outside [%lld, %lld]\n", what, v, lo, hi); exit(1); } return v; }
 static int arg_int(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return (int)chk_ll(opt, argv[++*i], lo, hi); }
 static __attribute__((unused)) long long arg_llr(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return chk_ll(opt, argv[++*i], lo, hi); }
@@ -198,14 +198,14 @@ int main(int argc, char **argv) {
     if (argc < 3) { fprintf(stderr, "usage: %s sextic.txt L [-B 200] [-K 1000] [-t threads] [-through a b c] [-exact A B C] [-B1 60 -frac 0.2]\n", argv[0]); return 1; }
     FILE *fp = fopen(argv[1], "r"); if (!fp) { perror("sextic"); return 1; }
     { int n = 0; char buf[65536]; size_t len = fread(buf, 1, sizeof buf - 1, fp); buf[len] = 0; fclose(fp);
-      char *tok = strtok(buf, " ,\t\r\n[]");   /* Codex round 49: exactly 28 complete int64 coefficients, nothing else */
+      char *tok = strtok(buf, " ,\t\r\n[]");   /* exactly 28 complete int64 coefficients, nothing else */
       while (tok) { if (n == 28) { fprintf(stderr, "%s: more than 28 coefficients\n", argv[1]); return 1; } char *end = NULL; errno = 0; long long v = strtoll(tok, &end, 10); if (errno != 0 || end == tok || *end != 0) { fprintf(stderr, "%s: coefficient %d is not an int64 integer: '%s'\n", argv[1], n + 1, tok); return 1; } S[n++] = v; tok = strtok(NULL, " ,\t\r\n[]"); }
       if (n != 28) { fprintf(stderr, "need 28 coefficients, got %d\n", n); return 1; } }
     { int n = 0; for (int i = 6; i >= 0; i--) for (int j = 6 - i; j >= 0; j--) { SI[n] = i; SJ[n] = j; SK[n] = 6 - i - j; n++; } }
     int64_t L = chk_ll("L", argv[2], 1, 1000000000); int B = 200, K = 1000, nthreads = omp_get_max_threads(); int64_t th[3] = {0,0,0}; int through = 0; int exact = 0; int64_t ex[3]; int pencil = 0; int64_t pc[3] = {0,0,0}; int enum_only = 0, exactbatch = 0;
     int B1 = 60; double frac = 0.25;
     for (int i = 3; i < argc; i++) {
-        /* Codex round 48: every option argument is checked (presence, syntax, range); unknown options are errors — a
+        /* every option argument is checked (presence, syntax, range); unknown options are errors — a
          * misspelt -nosym used to be ignored silently, i.e. a sweep would run WITH the symmetry filter */
         if (!strcmp(argv[i], "-B")) B = arg_int(argc, argv, &i, 3, 313); else if (!strcmp(argv[i], "-K")) K = arg_int(argc, argv, &i, 1, 100000000); else if (!strcmp(argv[i], "-t")) nthreads = arg_int(argc, argv, &i, 1, 4096);
         else if (!strcmp(argv[i], "-through")) { through = 1; for (int k = 0; k < 3; k++) th[k] = arg_llr(argc, argv, &i, -(1LL << 40), 1LL << 40); }
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     /* primes */
-    if (B < 3 || B > 313) { fprintf(stderr, "-B must be between 3 and 313 (at most 64 odd primes fit the fixed tables; Codex round 16)\n"); return 1; }
+    if (B < 3 || B > 313) { fprintf(stderr, "-B must be between 3 and 313 (at most 64 odd primes fit the fixed tables)\n"); return 1; }
     { char *sv = calloc(B + 1, 1); for (int p = 3; p <= B; p += 2) if (!sv[p]) {   /* odd primes only (the step-1 loop let 4 through) */ if (nprimes == 64) { fprintf(stderr, "too many primes\n"); return 1; } primes[nprimes++] = p; for (int q = 2*p; q <= B; q += p) sv[q] = 1; } free(sv); }
     for (int ip = 0; ip < nprimes; ip++) { int p = primes[ip]; leg[ip] = malloc(p); memset(leg[ip], -1, p); leg[ip][0] = 0; for (int64_t x = 1; x < p; x++) leg[ip][(x*x) % p] = 1;
         for (int n = 0; n < 28; n++) Smod[ip][n] = ((S[n] % p) + p) % p; pmagic[ip] = UINT64_C(0xFFFFFFFFFFFFFFFF) / p + 1; }

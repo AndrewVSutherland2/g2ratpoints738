@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <gmp.h>
 #include <omp.h>
-#include <immintrin.h>
+#include "simd.h"
 #include <sys/mman.h>
 
 typedef unsigned __int128 u128;
@@ -62,8 +62,8 @@ static uint64_t *invd[NP+NBIG];   /* invd[k][i*ncap+j] = (x_i - x_j)^-1 mod p (0
 static uint64_t *inv2y[NP+NBIG];  /* (2 y_i)^-1 mod p (0 if y_i = 0) */
 static uint64_t *yd1[NP+NBIG];    /* y_i' = f'(x_i) / (2 y_i) mod p (meaningless if inv2y = 0) */
 static uint64_t *sx3[NP+NBIG];    /* s x_i^3 mod p, s = sqrt(f6) (0 if none) */
-static uint8_t *badr[NP+NBIG];    /* 1 if the point's denominator c is 0 mod p: its residues are meaningless, every modular test involving it is undecided for that prime (Codex round 3, PR #15) */
-static mpz_t sqrt_f6z; static int has_sqrt_f6 = 0;   /* s with s^2 = f6 (kept in GMP: a leading coefficient >= 2^126 has a root beyond int64 -- Codex round 5, PR #15); has_sqrt_f6 = 0 if f6 = 0 or not a square (then no inf relations) */
+static uint8_t *badr[NP+NBIG];    /* 1 if the point's denominator c is 0 mod p: its residues are meaningless, every modular test involving it is undecided for that prime */
+static mpz_t sqrt_f6z; static int has_sqrt_f6 = 0;   /* s with s^2 = f6 (kept in GMP: a leading coefficient >= 2^126 has a root beyond int64); has_sqrt_f6 = 0 if f6 = 0 or not a square (then no inf relations) */
 static int f6_is_zero = 0;
 static int ncap = 0;
 static uint64_t fr[NP+NBIG][7];   /* f mod p */
@@ -1022,7 +1022,7 @@ static void four_pass_vec(int n, int nstart, newpt_t **found, int *nfound, int *
                 if (i3start >= n) continue;
                 /* per-prime scalar data for the triple */
                 uint64_t c3[NVP][4], cq[NVP][3][3], dinv3[NVP][3], y012[NVP][3];
-                int tripok[NVP];   /* per prime: 0 when two of the triple's x-values coincide mod p or a point has no residues mod p -- that prime is undecided for the triple's subsets, the others still filter (a single flag used to drop the whole triple: Codex round 3, PR #15) */
+                int tripok[NVP];   /* per prime: 0 when two of the triple's x-values coincide mod p or a point has no residues mod p -- that prime is undecided for the triple's subsets, the others still filter (a single flag for the triple would drop it for every prime) */
                 for (int k = 0; k < NVP; k++) {
                     uint64_t p = VP[k].p; double pinv = PINV[k];
                     uint64_t x[3] = {xr[k][i0], xr[k][i1], xr[k][i2]};
@@ -1981,7 +1981,7 @@ static int point_normalize(mpz_t a, mpz_t b, mpz_t c) {
     return ok;
 }
 
-/* Codex round 48: integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
+/* integer options/arguments are validated as long long against their range BEFORE any narrowing cast */
 static long long chk_ll(const char *what, const char *s, long long lo, long long hi) { char *end = NULL; errno = 0; long long v = strtoll(s, &end, 10); if (errno != 0 || end == s || *end != 0) { fprintf(stderr, "%s: invalid integer '%s'\n", what, s); exit(1); } if (v < lo || v > hi) { fprintf(stderr, "%s: %lld is outside [%lld, %lld]\n", what, v, lo, hi); exit(1); } return v; }
 static int arg_int(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return (int)chk_ll(opt, argv[++*i], lo, hi); }
 static __attribute__((unused)) long long arg_llr(int argc, char **argv, int *i, long long lo, long long hi) { const char *opt = argv[*i]; if (*i + 1 >= argc) { fprintf(stderr, "option %s needs an argument\n", opt); exit(1); } return chk_ll(opt, argv[++*i], lo, hi); }
