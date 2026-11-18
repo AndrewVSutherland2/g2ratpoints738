@@ -38,7 +38,7 @@ Parts of the run by themselves:
     models/build_models.sh WORK          # the models only: WORK/models.txt (7 minutes)
     search/search_model.sh t0453         # the search on one model of data/models.txt: the model of C_738 (20 seconds)
     search/line.sh t0453 66 31 -52       # one line of one model: its curve, the points of height <= 10^5, the closure
-    search/sample.sh WORK2               # 87 models again with lower cuts: what the selection loses (15 minutes)
+    search/sample.sh WORK2               # 87 models again with lower cuts: what the selection loses (5 processor hours)
 
 ## What is where
 

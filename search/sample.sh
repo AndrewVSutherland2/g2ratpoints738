@@ -3,7 +3,8 @@
 # with one node, 20 with two nodes and 60 with three, at regular intervals in the file) is searched again with the score
 # bound lowered from 40 to 30 and the thresholds of the first two point counts lowered from 250 and 330 to 200 and 300.
 # OUTDIR/search_sample.txt lists every curve closed, and says whether the search with the standard settings has it
-# (data/search_curves.txt) or which cut removed it.  About fifteen minutes on a 16-core machine.
+# (data/search_curves.txt) or which cut removed it.  It costs 5.2 processor hours (the stored table took 39 minutes
+# with eight models at a time, on a machine that was busy with other work).
 set -euo pipefail
 [ $# -ge 1 ] || { echo "usage: sample.sh OUTDIR [JOBS=16] [P=2]" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(dirname "$HERE"); export HERE MODELS=${MODELS:-$ROOT/data/models.txt}; mkdir -p "$1"; export O=$(cd "$1" && pwd) P=${3:-2}; JOBS=${2:-16}
