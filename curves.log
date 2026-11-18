@@ -1,0 +1,8 @@
+1061 rows: each sextic is the section of its model by its line; 1060 have Galois group S6
+the curve with 638 points on p144: Galois group 6T11 of order 48, automorphism group of order 4 with an extra involution
+1035 classes of curves up to isomorphism over an algebraic closure
+1 node: 98 curves closed, 91 classes; with at least 500, 550, 600 points: 56, 11, 2; most points 642
+2 nodes: 399 curves closed, 384 classes; with at least 500, 550, 600 points: 202, 28, 5; most points 638
+3 nodes: 564 curves closed, 560 classes; with at least 500, 550, 600 points: 271, 47, 9; most points 738
+classes on more than one model: 0; classes that occur more than once on their model: 26 (7 of them on Elkies' sextic E)
+CURVES CHECK PASSED

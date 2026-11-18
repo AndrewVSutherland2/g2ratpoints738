@@ -1,0 +1,12 @@
+# built programs
+src/k3pts
+src/k3inc
+src/linesearch
+src/g2rp
+src/cubic
+models/conicmodp
+models/sqfilter
+models/frames
+models/canon
+__pycache__/
+*.pyc

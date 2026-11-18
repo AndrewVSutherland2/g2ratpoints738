@@ -1,0 +1,14 @@
+ok 1: S_3 is absolutely irreducible; its singular subscheme has degree 3 and consists of the
+      rational points [ -2, 2, 1 ], [ 0, 0, 1 ], [ 0, 2, 1 ]: three ordinary nodes
+ok 2: S_3 is a square on all 39 lines; 21 pass through no node, 15 through one, 3 through two
+ok 3: the 78 lifts and the 3 contracted curves span a lattice of rank 20 and discriminant -163,
+      which is therefore NS(X); D^2 = 2
+ok 4: D-perp is negative definite of rank 19 and determinant 326, with roots +-E_1, +-E_2, +-E_3 (A_1^3);
+      of the 126 classes with x^2 = -2, x.D = 1 the irreducible ones are exactly the 78 lifts:
+      exactly 39 lines, 78 forced points;
+      of the 6458 classes with x^2 = -2, x.D = 2, 1620 are irreducible: exactly 810 conics
+ok 5: #X(F_p) = p^2 + 20p + 1 + a_p for the 32 primes [ 41, 43, 47, 53, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 167, 173, 179, 181, 191, 193, 197, 199 ]
+ok 6: S_3(6x - 2, 4x + 16, 10x + 7) = 64 f_738(x); the 39 lines meet this line at 39 distinct x,
+      each with f_738(x) a nonzero square
+ok 7: S_3 is a square on each of the 810 distinct conics of data/S3_conics_810.txt, which by step 4 are all of them
+ALL CHECKS PASSED

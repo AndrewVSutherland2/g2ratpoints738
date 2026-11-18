@@ -1,0 +1,13 @@
+load "pencil.m";
+Zu := [<"L",14,1,1>, <"L",15,-1,1>, <"L",16,1,2>, <"L",17,-1,3>, <"L",18,-1,1>, <"L",27,1,1>, <"L",28,1,1>, <"L",29,-1,2>, <"L",30,1,2>, <"L",32,-1,1>, <"L",33,-1,3>, <"L",36,1,1>, <"L",37,-1,2>, <"L",38,1,1>, <"L",39,-1,3>];
+t0 := Cputime(); rows, MA, MB := PencilRows(24, Zu, 0);
+M := Transpose(Matrix(Q, rows)); print Nrows(M), Ncols(M), Cputime(t0);
+ker := Kernel(M); print "kernel dimension over Q:", Dimension(ker), Cputime(t0);
+B := Basis(ker);
+B := [ v*LCM([Denominator(c) : c in Eltseq(v)]) : v in B ];
+B := [ v/GCD([Integers() ! c : c in Eltseq(v)]) : v in B ];
+print "digits of the largest coefficient:", [ #IntegerToString(Max([Abs(Integers() ! c) : c in Eltseq(v)])) : v in B ];
+L := LLL(Matrix(Integers(), [[Integers() ! c : c in Eltseq(v)] : v in B]));
+print "after LLL:", [ #IntegerToString(Max([Abs(c) : c in Eltseq(L[i])])) : i in [1..Nrows(L)] ];
+PrintFile("u_pencil.txt", <MA, MB, [Eltseq(L[i]) : i in [1..Nrows(L)]]> : Overwrite := true);
+quit;

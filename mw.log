@@ -1,0 +1,14 @@
+1. f is irreducible mod 67 and has factors of degrees 1,5 mod 47 and 1,2,3 mod 59: the Galois group is S6
+   #J(F_43) = 3022 and #J(F_47) = 3537 are coprime: J(Q) is torsion-free
+2. the 21 classes have independent images modulo 3 at the 18 primes [ 17, 23, 41, 47, 67, 73, 89, 101, 113, 131, 163, 173, 179, 193, 223, 229, 241, 257 ]: rank J(Q) >= 21
+3. modulo 2 at the 41 good primes below 400 with #J(F_l) even: rank 20; the kernel is spanned by b = [iota(P0) - P0], which is not in 2J(Q)
+4. all 369 classes [P - P0] are the stated combinations of b_1, ..., b_21, and their coordinate vectors span Z^21: Lambda is free of rank 21 with this basis
+   the 21 classes of step 2 generate a subgroup of index 1 in Lambda
+5. p = 2: Lambda/2 has rank 20 in the reductions at 41 primes; the kernel is the class of b, not in 2J(Q): saturated at 2
+   p = 3: Lambda/3 injects into the reductions (18 primes up to 257): saturated at 3
+   p = 5: Lambda/5 injects into the reductions (20 primes up to 571): saturated at 5
+   p = 7: Lambda/7 injects into the reductions (20 primes up to 739): saturated at 7
+   p = 11: Lambda/11 injects into the reductions (21 primes up to 1543): saturated at 11
+   p = 13: Lambda/13 injects into the reductions (21 primes up to 1543): saturated at 13
+6. regulator of Lambda: 5.68239E12
+MORDELL-WEIL CHECKS PASSED (19.120 s)

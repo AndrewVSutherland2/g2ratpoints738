@@ -1,0 +1,34 @@
+ok   C_738: no error
+ok   C_738: the five starting values give exactly the 369 listed x-values
+ok   C_738: 738 rational points, none at infinity
+ok   C_738: 7,805,120 sets of four tried and 84,317 relations found, as quoted in the note -- 7805120 sets, 84317 relations
+ok   C_738: each of the 364 x-values that is not a starting value has a recorded relation -- 364 relations
+ok   C_738: all 364 recorded relations verify exactly (cubic through the four parents, q^2 - f factors as stated) -- 364 of 364; at most 7 steps back to a starting value
+ok   C_738: the certificate text is data/witnesses_738.json, byte for byte
+ok   C_738: check_witnesses.py verifies the certificate: 364 witnesses, the 369 listed x-values, 738 points
+ok   C_738: a certificate with a wrong x, a wrong sign of y, a parent that is not known yet, or a starting value off the curve is rejected
+ok   C_738: x-values are compared as numbers: a value repeated under another spelling (0/1 as a start, 80/482 as a witness) is rejected, and respelling known values changes nothing
+ok   Weierstrass point: same 11 x-values as the reference closure (y^2 = x^2 - x(x-1)...(x-5): the line y = x through (0,0), (1,1), (2,2), (3,3) gives x = 4, 5)
+ok   Weierstrass point: 21 rational points -- closure.js says 21
+ok   Weierstrass point: every x-value is on the curve
+ok   Weierstrass point: every recorded relation verifies exactly -- 7 of 7
+ok   Weierstrass point: check_witnesses.py verifies its certificate and finds the same points
+ok   square leading coefficient: same 7 x-values as the reference closure (y^2 = x^6 - (x-1)...(x-5): the cubic y = x^3 through a point at infinity and x = 1, 2, 3 gives x = 4, 5)
+ok   square leading coefficient: 14 rational points -- closure.js says 14
+ok   square leading coefficient: every x-value is on the curve
+ok   square leading coefficient: every recorded relation verifies exactly -- 3 of 3
+ok   square leading coefficient: check_witnesses.py verifies its certificate and finds the same points
+ok   degree 5: same 11 x-values as the reference closure (y^2 = x^2 - x(x-1)...(x-4): the line y = x through four points gives x = 4 and the point at infinity)
+ok   degree 5: 20 rational points -- closure.js says 20
+ok   degree 5: every x-value is on the curve
+ok   degree 5: every recorded relation verifies exactly -- 6 of 6
+ok   degree 5: check_witnesses.py verifies its certificate and finds the same points
+ok   two Weierstrass points: same 6 x-values as the reference closure (y^2 = (x(x-1))^2 - x(x-1)...(x-5): y = x(x-1) through (0,0), (1,0), (2,2), (3,6) gives x = 4, 5)
+ok   two Weierstrass points: 10 rational points -- closure.js says 10
+ok   two Weierstrass points: every x-value is on the curve
+ok   two Weierstrass points: every recorded relation verifies exactly -- 2 of 2
+ok   two Weierstrass points: check_witnesses.py verifies its certificate and finds the same points
+ok   Weierstrass point: x = 4 and 5 are found
+ok   square leading coefficient: x = 4, 5 and the points at infinity are found
+ok   degree 5: x = 4 and the point at infinity are found
+ALL CLOSURE TESTS PASSED (33 of 33)

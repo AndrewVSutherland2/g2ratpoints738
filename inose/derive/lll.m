@@ -1,0 +1,10 @@
+L := Split(Read("inv_int.txt"), "\n");
+M := Matrix(Integers(), [[StringToInteger(x) : x in Split(l, " ")] : l in L]);
+print Nrows(M), Ncols(M);
+t0 := Cputime(); Ms := Saturation(M); print "saturation", Cputime(t0);
+Ml := LLL(Ms : Delta := 0.999); print "LLL", Cputime(t0);
+print "digits of the largest entry of each reduced vector:", [#IntegerToString(Max([Abs(x) : x in Eltseq(Ml[i])])) : i in [1..Nrows(Ml)]];
+print "nonzero entries:", [#[x : x in Eltseq(Ml[i]) | x ne 0] : i in [1..Nrows(Ml)]];
+SetColumns(0);
+PrintFile("inv_lll.txt", [Eltseq(Ml[i]) : i in [1..Nrows(Ml)]] : Overwrite := true);
+quit;
