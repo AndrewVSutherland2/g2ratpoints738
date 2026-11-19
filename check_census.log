@@ -1,0 +1,44 @@
+ok   53361 classes recorded
+ok   7 classes of root type A1
+ok   186 classes of root type A1^2
+ok   8 classes of root type A2
+ok   2192 classes of root type A1^3
+ok   550 classes of root type A1+A2
+ok   no class without roots (no smooth sextic model was met)
+ok   no recorded class has a class E with E^2 = 0, E.D = 1 (0 of 53361)
+ok   the walks made 9.9 million steps; a class with |Aut| = a is expected 606/a times
+ok   every class of Table 1 was visited at least 4 times
+ok   every three-node class was visited at least 10 times; the 1141 with |Aut| = 16 computed, 37.6 times on average (37.9 expected), with variance 42.5
+ok   seven walks; of the 193 classes with one or two nodes, 185 were found by all seven and 8 by six
+ok   heuristic miss probabilities exp(-606/a): about 1e-4, 1e-2, 1e-1 for a = 64, 128, 256
+ok   2381 sextics, 7 + 186 + 2188 with one, two, three nodes (E, b1..b6, p001.., t0001..); forced points 104-108, 86-96, 72-86
+ok   the row t0453 is the sextic S_3 of the note with its 39 lines; its largest coefficient is 6326, and the median of the largest coefficient over the sextics is 6073
+ok   minimisation.txt has one row per sextic, in the order of models.txt; its last number of coefficients is the largest coefficient of the sextic listed
+ok   search_models.txt has one row per sextic, with its number of nodes and forced points
+ok   2.1 x 10^8 lines of height <= 400 per model (computed: 213603553), 5.1 x 10^11 in all; 1.8, 1.5, 1.3 million surface points per model on average; scoring costs 0.11 microseconds of processor time per line
+ok   the lines kept have score >= 40: on average 7400 / 4300 / 2600 on a model with one / two / three nodes; 6.6 x 10^6 lines kept in all
+ok   119,276 curves with >= 250 points of height <= 2000; 17,338 with >= 330 of height <= 10^4; 6,118 with >= 400 of height <= 10^5; 1,061 closed (the rows of search_curves.txt, model by model), 1,035 up to isomorphism
+ok   by number of nodes: 72, 12, 1.6 curves with >= 400 points of height <= 10^5 per model; different curves with >= 500 / 550 / 600 points: 56 / 11 / 2, 202 / 28 / 5, 271 / 47 / 9; most points 642, 638, 738
+ok   sixteen curves with at least 600 points, nine of them on three-node models; three with at least 642: 738 on t0453, 654 on t1272, 642 on b4
+ok   the table of the sixteen curves in the note is the top of search_curves.txt (points, points of height <= 10^5, nodes, forced points, model, line, score, rank)
+ok   the 654-point curve: 570 points of height <= 10^5 and 42 further x-values, on a model with 84 forced points where no other line has 440 points of height <= 10^5; the 642-point curve: on a model with 106 forced points
+ok   1,060 of the 1,061 sextics have Galois group S6; the exception has 638 points
+ok   the closure adds between 6 and 116 points (median 42); the curves with >= 600 points have >= 512 points of height <= 10^5, those with >= 550 have >= 444
+ok   the sixteen curves have scores >= 46, >= 310 points of height <= 2000 and >= 400 of height <= 10^4; seven closed curves have score 40 and ten have 41, one of the former with 584 points
+ok   three-node models: curves with >= 400 points of height <= 10^5 per model fall from 2.4 (72 forced points) to 1.3 (84) and 0.8 (86); rank correlation -0.13
+ok   on the model of C_738: 1,328,965 surface points; 249,542 lines through no node with at least 15 of them; the 2,460 with at least 40 are kept
+ok   ... the line (66, 31, -52) has score 112 and 424, 536, 662 points; the best other line 95, 310, 346, 376; 27 curves reach 250 points, four reach 330, one reaches 400
+ok   ... the four curves with >= 330 points of height <= 10^4 have ranks 1, 2, 34, 2105 by score; the last has score 41, 262 points of height <= 2000 and 372 of height <= 10^5; the model takes 22 seconds
+ok   a sample of 87 models (7, 20, 60 with one, two, three nodes) searched with score >= 30 and thresholds 200, 300: the curves marked 'found' are the rows of search_curves.txt for these models, with the same numbers
+ok   ... 152 curves closed in the sample, 144 of them by the search; of the 8 others, 7 / 1 / 0 have at least 500 / 550 / 600 points (most: 556); 8 are lost by the score bound and 0 by the counts
+ok   the run took 62 minutes, 7 of them for the models; the table of times in the note is that of search_summary.txt (10 rows)
+ok   a model takes about 20 / 35 / 120 seconds on two threads (median, three / two / one nodes); the processor seconds of search_models.txt add up to the search rows of the table of times
+ok   models.log: every sextic of models.txt is certified (NS of rank 20 and discriminant -163, the stated number of forced points), and the 2381 sextics are 2381 isomorphism classes
+ok   ... the model of C_654 has 26 tritangents and 16 node lines, the model of C_738 has 21 and 18
+ok   linesection.log: no line on 2380 of the sextics, and exactly one, (66, 31, -52), on S_3
+ok   no curve of the search lies on two models; 26 curves occur twice on their sextic, 7 of them on Elkies' sextic, which is even in z0
+ok   curves.log: 1061 rows verified, 1060 with Galois group S6, 1035 classes, none on two models
+ok   inose/verify.log and inose/verify_inverse.log: the map to Inose's surface and its inverse are verified (no failure, 100 fibres)
+ok   data/census.txt is the list of the 2385 classes with one, two or three nodes of the census (id, root type, forced points, Gram matrix), rebuilt from the census files and compared exactly
+ok   census.log: the 2381 models are 2381 classes of the census: all 7 with one node, all 186 with two, and 2188 of the 2192 with three
+ALL CHECKS PASSED (43 of 43)

@@ -1,0 +1,47 @@
+ok    f738 in the abstract = f738 in the parametrisation display
+ok    S_E = data/elkies163.txt, the input of the computation
+ok    a = 53360 = 640320/12, and the coefficients of the Inose equation: 3 a^2 = 8541868800, 2 a^3 + 2 = 303862746112002
+ok    S_3 = data/S3_coefficients.txt
+ok    the table of conics of Elkies' sextic has 1241 rows, and the table of lines 52: 43 tritangents and 9 lines through the node
+ok    q1, q2 = conics 410 and 424 of the table
+ok    S_E = G1^2 on q1 and G2^2 on q2
+ok    q1, q2 meet in a rational point and a cubic point
+ok    Gamma1.Gamma2 = 3, Gamma1.Gamma2' = 1
+ok    S_3(A + Bw) is a square at 1718 rational points of X on conics of Elkies' model
+ok    S_3(z) = T^2/16 modulo w^2 - S_E, an identity of polynomials (T = w det(z, dz/dx1, dz/dx2), chart x0 = 1)
+ok    A_j = B_j G_i modulo q_i for both conics and all three coordinates
+ok    x2 = 0 is a tritangent: S_E(x0,x1,0) = x0^2 (1920 x0^2 - 2265 x1^2)^2
+ok    the lift w = x0 (1920 x0^2 - 2265 x1^2) of x2 = 0 is contracted to (0:2:1)
+ok    (1:1:0; w = 345) maps to (118:-118:-75) with S_3 = 7570880^2
+ok    S_3 is singular at (0:0:1), (0:2:1), (2:-2:-1)
+ok    S_3 is a square on the 21 tritangents and 18 node lines of the lines file
+ok    15 node lines pass through one node and 3 through two
+ok    S_3(6x-2, 4x+16, 10x+7) = 64 f738
+ok    (6x-2, 4x+16, 10x+7) lies on the line (66, 31, -52)
+ok    f738 irreducible with Galois group S6
+ok    disc f738 = 2^9 3^6 5^10 7^9 11^8 13^2 29^2 37^3 61^2 137^3 * (28-digit prime)
+ok    disc f738 is negative
+ok    f738 has irreducible factors of degrees [6], [1,5], [1,2,3] modulo 67, 47, 59
+ok    #J(F_43) = 3022 = 2*1511 and #J(F_47) = 3537 = 3^3*131 are coprime
+ok    Frobenius at 43
+ok    369 distinct x-values, all on the curve, none with y = 0
+ok    points by height 10..10^9: 36 188 390 554 666 712 732 736 738
+ok    largest x-value 185880347/11934737
+ok    333 x-values of height <= 10^5 and 36 above, from 1.06e5 to 1.86e8
+ok    -102/109 and 1474359/1473364 are x-values of the list
+ok    f6 = 743425 is not a square
+ok    P1..P4 lie on the curve
+ok    p interpolates P1..P4
+ok    p^2 - f = (2/81) x (2x+3)(3x-1)(3x+5)(109x+102)(1473364x-1474359)
+ok    y at x = 1474359/1473364
+ok    the search's sextic on the line (66, 31, -52) of t0453 is 64 f738(-x/2): the equation of the abstract with x -> -2x
+ok    the search's sextic on the line (95, -9, -82) of b4 is f642
+ok    Elkies' sextic: largest coefficient 8697600, lines of height at most 148; its minimal form (row E): 35356 and 37, 52 lines
+ok    the model b5: largest coefficient 6984; S(z0 - z2, z0 + z2, z1 - z2)/4 is integral with largest coefficient 5134; the determinant is 2; its line (21, -256, -50) is the line (327, -285, -512) of b5
+ok    minimisation.txt: 2380 sextics constructed, 397 of them not minimal as they come out; Elkies' sextic 8697600 -> 35356 with determinant 1/4
+ok    the row t0453 of data/models.txt is S_3
+ok    the search's sextic on the line (83, 6, 125) of t1272 is f654(-2x)/16
+ok    the 648-point curve is the even sextic [83877673125, 7793336764011, -1685253906933, 98285087781] (x -> -x symmetry, so a split Jacobian)
+ok    C654 irreducible with Galois group S6
+ok    C642 irreducible with Galois group S6
+ALL CHECKS PASSED (46 of 46)
