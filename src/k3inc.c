@@ -183,7 +183,7 @@ static void lines_through(int64_t p0, int64_t p1, int64_t p2, int64_t L, linecb 
             double a = (bl - tv) / U[i], b = (bh - tv) / U[i]; if (a > b) { double x = a; a = b; b = x; }
             if (a > lo) lo = a; if (b < hi) hi = b;
         }
-        if (!ok || lo > hi) continue;
+        if (!ok) continue;   /* no test of lo > hi here: see dpoint; an empty row has s0 > s1 */
         int64_t s0 = (int64_t)ceil(lo - 1e-9), s1 = (int64_t)floor(hi + 1e-9);
         for (int64_t s = s0; s <= s1; s++) {
             int64_t A = s * U[0] + t * V[0], B = s * U[1] + t * V[1], C = s * U[2] + t * V[2];
@@ -229,7 +229,10 @@ static void dpoint(int64_t p0, int64_t p1, int64_t p2, int64_t L) {
             double a = (-(double)L - tv) * iu[i], b = ((double)L - tv) * iu[i]; if (a > b) { double x = a; a = b; b = x; }
             if (a > lo) lo = a; if (b < hi) hi = b;
         }
-        if (!ok || lo > hi) continue;
+        /* lo > hi is not tested before the tolerance: when the row meets the box in one point, a corner where two coordinates
+         * of the line are +-L, lo and hi are the same integer up to the rounding of the products with iu[], and they can come
+         * out as 1 and 1 - 2^-53.  An empty row has s0 > s1 below. */
+        if (!ok) continue;
         int64_t s0 = (int64_t)ceil(lo - 1e-6), s1 = (int64_t)floor(hi + 1e-6);
         while (s0 <= s1 && !inbox(U, V, s0, t, L)) s0++;        /* the box is convex: exact ends give the exact row */
         while (s1 >= s0 && !inbox(U, V, s1, t, L)) s1--;
