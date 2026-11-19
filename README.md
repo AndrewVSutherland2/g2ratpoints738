@@ -1,7 +1,8 @@
 # A genus 2 curve with 738 rational points: the computation
 
 This repository holds the programs, the input and the output of the computation described in the note
-*A genus 2 curve with 738 rational points* (A. V. Sutherland, November 2026).  The curve
+*A genus 2 curve with 738 rational points* (A. V. Sutherland, November 2026), which is at
+<https://math.mit.edu/~drew/g2ratpoints738.html>.  The curve
 
     C_738:  y^2 = 743425 x^6 - 16144220 x^5 + 60026500 x^4 + 172162750 x^3 + 40133975 x^2 - 46160230 x + 6838225
 
